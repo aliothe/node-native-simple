@@ -19,6 +19,11 @@ Thus you need to do something like:
 $ npm install -g node-gyp
 ```
 
+You also need to install the dependencies in package.json since you can not do npm install.
+``` bash
+$ npm install underscore jasmine-node
+```
+
 Software needed besides node:
 * Microsoft Visual Studio C++ 2012 for Windows Desktop ([msvc2012-express] version works well) 
 * Visual C++ Compiler November 2012 CTP - http://www.microsoft.com/en-us/download/details.aspx?id=35515
@@ -46,6 +51,10 @@ $ npm install
 ``` bash
 $ npm test 
 ```
+
+Notes
+=====
+Yes the actual example task in this module is stupid and I will try to find something more interesting. Still, it does show the basic usage of libuv.
 
 License
 -------

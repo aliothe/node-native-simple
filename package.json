@@ -5,7 +5,7 @@
     "private": true,
     "repository": {
         "type": "git",
-        "url": "gitosis@foo-git:blah.git"
+        "url": "https://github.com/AdjacentDoor/node-native-simple.git"
     },
     "dependencies": {
 	"node-gyp": "x",
