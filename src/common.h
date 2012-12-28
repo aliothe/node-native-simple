@@ -1,7 +1,6 @@
 #ifndef __NATIVE_EXAMPLE_COMMON__
 #define __NATIVE_EXAMPLE_COMMON__
 
-#include <node.h>
 #include <v8.h>
 #include <string>
 

@@ -1,5 +1,4 @@
 #include <functional>
-#include <unordered_map>
 #include <cstddef>
 #include <memory>
 #include <v8.h>
@@ -115,7 +114,6 @@ Handle<Value> Native::Fib(const v8::Arguments& args)
   baton->callback = Persistent<Function>::New(callback);
   baton->number = number->Value();
   baton->answer = 0;
-  baton->error = std::string();
   baton->native_obj = native;
   
   baton->req.data = reinterpret_cast<void*>(baton.get());
