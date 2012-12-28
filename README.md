@@ -36,13 +36,16 @@ $ node-gyp configure
 ```
 
 and make sure that it is ok.
+
 Now open the project in visual studio 2012 and change Properties/General/Platform Toolset to the November CTP edition, compile for release.
 
 npm test to verify that it all works as expected.
 
 # Linux
 You need to have a version of g++ that supports the c++11 features used in this project.
+
 g++-4.6.3 works.
+
 You also need to have python and make installed.
 
 ``` bash
@@ -55,7 +58,9 @@ $ npm test
 
 Notes
 =====
-Yes the actual example task in this module is stupid and I will try to find something more interesting. Still, it does show the basic usage of libuv.
+Yes the actual example task in this module is stupid and I will try to find something more interesting. 
+
+Still, it does show the basic usage of libuv.
 
 License
 -------
