@@ -10,7 +10,8 @@
     "dependencies": {
 	"node-gyp": "x",
         "underscore": "x",
-        "jasmine-node": "x"
+        "jasmine-node": "x",
+	"async": "x"
     },
     "scripts": {
         "test": "jasmine-node test/jasmine"

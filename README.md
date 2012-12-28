@@ -21,7 +21,7 @@ $ npm install -g node-gyp
 
 You also need to install the dependencies in package.json since you can not do npm install.
 ``` bash
-$ npm install underscore jasmine-node
+$ npm install underscore jasmine-node async
 ```
 
 Software needed besides node:

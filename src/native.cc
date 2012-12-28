@@ -56,7 +56,9 @@ Handle<Value> Native::New(const Arguments& args)
 Handle<Value> Native::NewInstance(const v8::Arguments& args) 
 {
   HandleScope scope;
-  Local<Object> instance = constructor->NewInstance();
+  const unsigned argc = 1;
+  Handle<Value> argv[argc] = { args[0] };
+  Local<Object> instance = constructor->NewInstance(argc, argv);
   return scope.Close(instance);
 }
 
