@@ -1,0 +1,25 @@
+{
+    "name": "node-native",
+    "description": "a very simple example of a node native module",
+    "version": "0.0.1",
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "gitosis@foo-git:blah.git"
+    },
+    "dependencies": {
+	"node-gyp": "x",
+        "underscore": "x",
+        "jasmine-node": "x"
+    },
+    "scripts": {
+        "test": "jasmine-node test/jasmine"
+    },
+    "main": "./index",
+    "copyright": "MIT",
+    "engine": "node 0.8.x",
+    "gypfile": true
+}
+
+
+
