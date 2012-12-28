@@ -27,7 +27,7 @@ $ npm install underscore jasmine-node
 Software needed besides node:
 * Microsoft Visual Studio C++ 2012 for Windows Desktop ([msvc2012-express] version works well) 
 * Visual C++ Compiler November 2012 CTP - http://www.microsoft.com/en-us/download/details.aspx?id=35515
-* [windows-python] ([`v2.7.3`][windows-python-v2.7.3] recommended, `v3.x.x` is __*not*__ supported)
+* [windows-python-v2.7.3] - needed by node-gyp
 * [compiler-update-Windows-SDK-7.1]
 
 Run 
