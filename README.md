@@ -41,7 +41,8 @@ Now open the project in visual studio 2012 and change Properties/General/Platfor
 npm test to verify that it all works as expected.
 
 # Linux
-You need to have g++ >= v4.5 for the c++11 features used in this project.
+You need to have a version of g++ that supports the c++11 features used in this project.
+g++-4.6.3 works.
 You also need to have python and make installed.
 
 ``` bash
