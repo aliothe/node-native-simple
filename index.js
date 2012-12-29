@@ -9,7 +9,7 @@ function  wrapper(){
     return {
 	fib: function(n, cb)
 	{
-	    return that.native_module.fib(n, cb);
+	    that.native_module.fib(n, cb);
 	},
 	fibsync: function(n)
 	{
