@@ -1,6 +1,7 @@
 #include <functional>
 #include <cstddef>
 #include <memory>
+#include <limits>
 #include <v8.h>
 #include <node.h>
 #include "utils.h"
@@ -32,7 +33,7 @@ void Native::Init()
   constructor = Persistent<Function>::New(tpl->GetFunction());
 }
 
-int64_t Native::FibImpl(int64_t n)
+double Native::FibImpl(double n)
 {
   if  (n < 2) return n;
   return f(n-1) + f(n-2);
@@ -44,8 +45,8 @@ Handle<Value> Native::New(const Arguments& args)
   Native * instance = new Native();
   instance->Wrap(args.This());
 
-  std::function<int64_t(int64_t)> wrapped_fibimpl = 
-  [=](int64_t n) 
+  std::function<double(double)> wrapped_fibimpl = 
+  [=](double n) 
   {
     return instance->FibImpl(n);
   };
@@ -76,9 +77,15 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
       return scope.Close(Undefined());
     }
 
-  Local<Integer> number = Local<Integer>::Cast(args[0]);
+  Local<Number> number = Local<Number>::Cast(args[0]);
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
-  return scope.Close(Number::New(static_cast<double>(native->f(number->Value()))));
+  const double result = native->f(number->Value());
+  if(result > std::numeric_limits<double>::max())
+    {
+      ThrowException(Exception::Error(String::New("overflow, result does not fit in double")));
+      return scope.Close(Undefined());
+    }
+  return scope.Close(Number::New((native->f(number->Value()))));
 }
 
 Handle<Value> Native::Fib(const v8::Arguments& args)
@@ -108,7 +115,7 @@ Handle<Value> Native::Fib(const v8::Arguments& args)
       return scope.Close(Undefined());
     }
   
-  Local<Integer> number = Local<Integer>::Cast(args[0]);
+  Local<Number> number = Local<Number>::Cast(args[0]);
   Local<Function> callback = Local<Function>::Cast(args[1]);
   
   baton->callback = Persistent<Function>::New(callback);
@@ -130,6 +137,10 @@ void Native::UV_Fib(uv_work_t * req)
       fib_baton * baton = reinterpret_cast<fib_baton*>(req->data);
       Native * native = baton->native_obj;
       baton->answer = native->f(baton->number);
+      if(baton->answer > std::numeric_limits<double>::max())
+	{
+	  baton->error = "overflow, result does not fit in double";
+	}
 }
 
 // back on main thread - feel free to use v8 stuff
@@ -147,7 +158,7 @@ void Native::UV_FibAfter(uv_work_t * req)
   else
     {
       argv[0] = Null();
-      argv[1] = Number::New(static_cast<double>(baton->answer));
+      argv[1] = Number::New(baton->answer);
     }
   TryCatch try_catch; 
   baton->callback->Call(Context::GetCurrent()->Global(), 2, argv);

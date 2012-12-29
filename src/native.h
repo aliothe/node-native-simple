@@ -28,9 +28,9 @@ namespace examples{
             static v8::Handle<v8::Value> FibSync(const v8::Arguments& args);
 
 	  private:
-	    int64_t  FibImpl(int64_t  n);
+	    double  FibImpl(double  n);
 	  private:
-	    std::function<int64_t (int64_t)> f;
+	    std::function<double (double)> f;
           };
 }}
 #endif

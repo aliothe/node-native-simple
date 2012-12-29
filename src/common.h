@@ -12,8 +12,8 @@ namespace examples{
   struct fib_baton {
     uv_work_t req;
     v8::Persistent<v8::Function> callback;
-    int64_t number;
-    int64_t answer;    
+    double number;
+    double answer;    
     std::string error;
     Native * native_obj;
   };
