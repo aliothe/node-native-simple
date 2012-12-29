@@ -42,6 +42,16 @@ describe("node native basic",
                     console.log(JSON.stringify(results));
                 });          
 
+	     function assert_overflow_error(err)
+	     {
+		 expect(err).not.toBeNull();
+		 if(null !== err)
+		 {
+		     expect(err instanceof Error).toBeTruthy();
+		     expect(err.message).toBe('overflow, result does not fit in double');
+		 }
+	     }
+
              it("fib async overflow", 
                 function(done) 
                 {
@@ -51,13 +61,8 @@ describe("node native basic",
                     expect(node_native).not.toBeNull();
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
-                                  {
-				      expect(err).not.toBeNull();
-				      if(null !== err)
-					  {
-					      expect(err instanceof Error).toBeTruthy();
-					      expect(err.message).toBe('overflow, result does not fit in double');
-					  }
+                                  {		
+				      assert_overflow_error(err);
                                       done();
                                   });
                 });          
@@ -74,12 +79,7 @@ describe("node native basic",
 		    try{
 			results = _.map(_.range(start,end), node_native.fibsync);
 		    }catch(err){
-			expect(err).not.toBeNull();
-			if(null !== err)
-			{
-			    expect(err instanceof Error).toBeTruthy();
-			    expect(err.message).toBe('overflow, result does not fit in double');
-			}
+			assert_overflow_error(err);
 		    }
                 });          
 
