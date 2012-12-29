@@ -39,7 +39,7 @@ describe("node native basic",
                     expect(node_native).not.toBeNull();
 		    results = _.map(_.range(start,end), node_native.fibsync);
 		    expect(_.isEqual(expected_result, _.take(results, expected_result.length))).toBe(true);
-		    console.log(JSON.stringify(results.sort(function(a,b){return a-b})));
+		    console.log(JSON.stringify(results));
                 });          
 
          });
