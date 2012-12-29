@@ -45,15 +45,19 @@ describe("node native basic",
              it("fib async overflow", 
                 function(done) 
                 {
-                    var start = 0,
-                    end = 2000,
+                    var start = 1470,
+                    end = 1478,
                     node_native = require(module_path).create();
                     expect(node_native).not.toBeNull();
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
                                   {
-				      expect(err instanceof Error).toBeTruthy();
-                                      expect(err.message).toBe('overflow, result does not fit in double');
+				      expect(err).not.toBeNull();
+				      if(null !== err)
+					  {
+					      expect(err instanceof Error).toBeTruthy();
+					      expect(err.message).toBe('overflow, result does not fit in double');
+					  }
                                       done();
                                   });
                 });          
@@ -61,16 +65,21 @@ describe("node native basic",
              it("fib sync overflow", 
                 function() 
                 {
-                    var start = 0,
-                    end = 2000,
+                    var start = 1470,
+                    end = 1478,
                     node_native = require(module_path).create(),
                     results = [];
                     expect(node_native).not.toBeNull();
+		    expect(function(){results = _.map(_.range(start,end), node_native.fibsync);}).toThrow('overflow, result does not fit in double');
 		    try{
 			results = _.map(_.range(start,end), node_native.fibsync);
 		    }catch(err){
-			expect(err instanceof Error).toBeTruthy();
-			expect(err.message).toBe('overflow, result does not fit in double');
+			expect(err).not.toBeNull();
+			if(null !== err)
+			{
+			    expect(err instanceof Error).toBeTruthy();
+			    expect(err.message).toBe('overflow, result does not fit in double');
+			}
 		    }
                 });          
 
