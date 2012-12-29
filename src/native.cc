@@ -78,7 +78,7 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
 
   Local<Integer> number = Local<Integer>::Cast(args[0]);
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
-  return scope.Close(Number::New(native->f(number->Value())));
+  return scope.Close(Number::New(static_cast<double>(native->f(number->Value()))));
 }
 
 Handle<Value> Native::Fib(const v8::Arguments& args)
@@ -147,7 +147,7 @@ void Native::UV_FibAfter(uv_work_t * req)
   else
     {
       argv[0] = Null();
-      argv[1] = Number::New(baton->answer);
+      argv[1] = Number::New(static_cast<double>(baton->answer));
     }
   TryCatch try_catch; 
   baton->callback->Call(Context::GetCurrent()->Global(), 2, argv);
