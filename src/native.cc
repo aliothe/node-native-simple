@@ -1,3 +1,4 @@
+#include <string>
 #include <functional>
 #include <cstddef>
 #include <memory>
@@ -13,6 +14,7 @@ using namespace v8;
 namespace mcreutz{
 namespace examples{
 
+const char * const K_DOUBLE_OVERFLOW_ERROR = "overflow, result does not fit in double";
 Persistent<Function> Native::constructor;
 
 Native::Native()
@@ -82,7 +84,7 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
   const double result = native->f(number->Value());
   if(result > std::numeric_limits<double>::max())
     {
-      ThrowException(Exception::Error(String::New("overflow, result does not fit in double")));
+      ThrowException(Exception::Error(String::New(K_DOUBLE_OVERFLOW_ERROR)));
       return scope.Close(Undefined());
     }
   return scope.Close(Number::New((native->f(number->Value()))));
@@ -139,7 +141,7 @@ void Native::UV_Fib(uv_work_t * req)
       baton->answer = native->f(baton->number);
       if(baton->answer > std::numeric_limits<double>::max())
 	{
-	  baton->error = "overflow, result does not fit in double";
+	  baton->error = K_DOUBLE_OVERFLOW_ERROR;
 	}
 }
 
