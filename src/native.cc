@@ -76,11 +76,9 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
       return scope.Close(Undefined());
     }
 
-  int64_t result;
   Local<Integer> number = Local<Integer>::Cast(args[0]);
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
-  result = native->f(number->Value());
-  return scope.Close(Number::New(result));
+  return scope.Close(Number::New(native->f(number->Value())));
 }
 
 Handle<Value> Native::Fib(const v8::Arguments& args)
