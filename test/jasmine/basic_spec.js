@@ -52,7 +52,8 @@ describe("node native basic",
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
                                   {
-                                      expect(err).toBe('overflow, result does not fit in double');
+				      expect(err instanceof Error).toBeTruthy();
+                                      expect(err.message).toBe('overflow, result does not fit in double');
                                       done();
                                   });
                 });          
@@ -65,10 +66,12 @@ describe("node native basic",
                     node_native = require(module_path).create(),
                     results = [];
                     expect(node_native).not.toBeNull();
-                    expect(function()
-                           {
-                               results = _.map(_.range(start,end), node_native.fibsync);
-                           }).toThrow('overflow, result does not fit in double');                       
+		    try{
+			results = _.map(_.range(start,end), node_native.fibsync);
+		    }catch(err){
+			expect(err instanceof Error).toBeTruthy();
+			expect(err.message).toBe('overflow, result does not fit in double');
+		    }
                 });          
 
          });

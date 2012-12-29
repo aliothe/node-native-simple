@@ -154,7 +154,7 @@ void Native::UV_FibAfter(uv_work_t * req)
   Handle<Value> argv[2];
   if (false == baton->error.empty())
     {
-      argv[0] = String::New(baton->error.c_str());
+      argv[0] = Exception::Error(String::New(baton->error.c_str()));
       argv[1] = Null();
     }
   else
