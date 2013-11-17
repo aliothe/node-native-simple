@@ -127,7 +127,8 @@ Handle<Value> Native::Fib(const v8::Arguments& args)
   
   baton->req.data = reinterpret_cast<void*>(baton.get());
   fib_baton * baton_ptr = baton.release();
-  uv_queue_work(uv_default_loop(), &(baton_ptr->req), Native::UV_Fib, Native::UV_FibAfter); 
+
+  uv_queue_work(uv_default_loop(), &(baton_ptr->req), Native::UV_Fib, (uv_after_work_cb)Native::UV_FibAfter); 
   native->Ref();
   return scope.Close(Undefined());
 }
