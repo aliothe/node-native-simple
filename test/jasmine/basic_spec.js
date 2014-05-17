@@ -20,7 +20,7 @@ describe("node native basic",
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
                                   {
-                                      expect(err).toBeNull();
+                                      expect(err).toBeUndefined();
                                       results.sort(function(a,b){return a-b});
                                       expect(_.isEqual(expected_result, _.take(results, expected_result.length))).toBe(true);
                                       console.log(JSON.stringify(results));
