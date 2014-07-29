@@ -11,12 +11,14 @@ Prerequisites
 Building
 ========
 # Windows
-Works with visual studio express 2013
-You still need to have python, [windows-python-v2.7.3], installed
-You should also install jasmine-node globally ( IE npm install jasmine-node)
+* Works with visual studio express 2013
+* You still need to have python, [windows-python-v2.7.3], installed
+* You should also install jasmine-node globally ( IE npm install jasmine-node)
 
+```
 npm install
-npm test to verify that it all works as expected.
+npm test 
+```
 
 # Linux
 You need to have a version of g++ that supports the c++11 features used in this project.
