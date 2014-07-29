@@ -11,34 +11,11 @@ Prerequisites
 Building
 ========
 # Windows
+Works with visual studio express 2013
+You still need to have python, [windows-python-v2.7.3], installed
+You should also install jasmine-node globally ( IE npm install jasmine-node)
 
-You can not do npm install and expect it to work since node-gyp does not set up the project to use the 2012 November CTP compiler
-that is needed for the c++11 features that is used in this code.
-Thus you need to do something like:
-``` bash
-$ npm install -g node-gyp
-```
-
-You also need to install the dependencies in package.json since you can not do npm install.
-``` bash
-$ npm install underscore jasmine-node async
-```
-
-Software needed besides node:
-* Microsoft Visual Studio C++ 2012 for Windows Desktop ([msvc2012-express] version works well) 
-* Visual C++ Compiler November 2012 CTP - http://www.microsoft.com/en-us/download/details.aspx?id=35515
-* [windows-python-v2.7.3] - needed by node-gyp
-* [compiler-update-Windows-SDK-7.1]
-
-Run 
-``` bash
-$ node-gyp configure
-```
-
-and make sure that it is ok.
-
-Now open the project in visual studio 2012 and change Properties/General/Platform Toolset to the November CTP edition, compile for release.
-
+npm install
 npm test to verify that it all works as expected.
 
 # Linux
@@ -46,7 +23,7 @@ You need to have a version of g++ that supports the c++11 features used in this 
 
 g++-4.6.3 works.
 
-You also need to have python and make installed.
+You also need to have python and make installed as well as jasmine-node installed globally.
 
 ``` bash
 $ npm install 
