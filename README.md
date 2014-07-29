@@ -11,7 +11,7 @@ Prerequisites
 Building
 ========
 # Windows
-* Works with visual studio express 2013
+* Works with visual studio express 2013 and node js v0.10.29
 * You still need to have python, [windows-python-v2.7.3], installed
 * You should also install jasmine-node globally ( IE npm install jasmine-node)
 
