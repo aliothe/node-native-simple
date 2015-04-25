@@ -12,6 +12,7 @@ Building
 ========
 # Windows
 * Works with visual studio express 2013 and node js v0.10.29
+* Note regarding note, it does NOT work with node v0.12.x - I will fix this once node is build with a better version of v8
 * You still need to have python, [windows-python-v2.7.3], installed
 * You should also install jasmine-node globally ( IE npm install jasmine-node)
 
