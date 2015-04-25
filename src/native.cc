@@ -2,8 +2,12 @@
 #include <functional>
 #include <cstddef>
 #include <memory>
+#include <cmath>
 #include <limits>
+#include <cfenv>
 #include <v8.h>
+#include <cerrno>
+#include <cstring>
 #include <node.h>
 #include "utils.h"
 #include "common.h"
@@ -16,7 +20,7 @@ namespace examples{
 
 const char * const K_DOUBLE_OVERFLOW_ERROR = "overflow, result does not fit in double";
 Persistent<Function> Native::constructor;
-
+  
 Native::Native()
 {};
 Native::~Native() {};
@@ -82,14 +86,14 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
   Local<Number> number = Local<Number>::Cast(args[0]);
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
   const double result = native->f(number->Value());
-  if(result > std::numeric_limits<double>::max())
+  if(isinf(result))
     {
       ThrowException(Exception::Error(String::New(K_DOUBLE_OVERFLOW_ERROR)));
       return scope.Close(Undefined());
     }
-  return scope.Close(Number::New((native->f(number->Value()))));
+  return scope.Close(Number::New(result));
 }
-
+  
 Handle<Value> Native::Fib(const v8::Arguments& args)
 {
   HandleScope scope;
@@ -137,13 +141,13 @@ Handle<Value> Native::Fib(const v8::Arguments& args)
 // note: runs on thread pool, no v8 hanky panky in here 
 void Native::UV_Fib(uv_work_t * req)
 {
-      fib_baton * baton = reinterpret_cast<fib_baton*>(req->data);
-      Native * native = baton->native_obj;
-      baton->answer = native->f(baton->number);
-      if(baton->answer > std::numeric_limits<double>::max())
-	{
-	  baton->error = K_DOUBLE_OVERFLOW_ERROR;
-	}
+  fib_baton * baton = reinterpret_cast<fib_baton*>(req->data);
+  Native * native = baton->native_obj;
+  baton->answer = native->f(baton->number);
+  if(isinf(baton->answer))
+  {
+    baton->error = K_DOUBLE_OVERFLOW_ERROR;
+  }
 }
 
 // back on main thread - feel free to use v8 stuff
