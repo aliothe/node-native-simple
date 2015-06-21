@@ -79,7 +79,7 @@ void Native::NewInstance(const FunctionCallbackInfo<v8::Value>& args)
 void Native::FibSync(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
   Isolate* isolate = Isolate::GetCurrent();
-  v8::EscapableHandleScope scope(isolate);
+  HandleScope scope(isolate);
   if (args.Length() < 1)
     {
       isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate,"wrong number of arguments - need a number")));
@@ -123,8 +123,8 @@ void Native::Fib(const v8::FunctionCallbackInfo<v8::Value>& args)
     }
     
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
-  std::unique_ptr<fib_baton> baton(new fib_baton());
-  if (0 == baton.get())
+  fib_baton * baton = new fib_baton();
+  if (nullptr == baton)
     {
       isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,"memory allocation error in Native::Fib")));
       return;
@@ -132,18 +132,13 @@ void Native::Fib(const v8::FunctionCallbackInfo<v8::Value>& args)
   
   Local<Number> number = Local<Number>::Cast(args[0]);
   Local<Function> callback = Local<Function>::Cast(args[1]);
-
-  Persistent<Function> fn(isolate, callback);
-  baton->callback.Reset(isolate, fn);
+  baton->callback.Reset(isolate, callback);
   baton->number = number->Value();
   baton->answer = 0;
-  baton->native_obj = native;
-  
-  baton->req.data = reinterpret_cast<void*>(baton.get());
-  fib_baton * baton_ptr = baton.release();
-
-  uv_queue_work(uv_default_loop(), &(baton_ptr->req), Native::UV_Fib, (uv_after_work_cb)Native::UV_FibAfter); 
+  baton->native_obj = native;  
+  baton->req.data = baton;
   native->Ref();
+  uv_queue_work(uv_default_loop(), &(baton->req), Native::UV_Fib, (uv_after_work_cb)Native::UV_FibAfter); 
 }
 
 // uv stuff
@@ -165,8 +160,7 @@ void Native::UV_FibAfter(uv_work_t * req)
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  std::unique_ptr<fib_baton> baton(reinterpret_cast<fib_baton*>(req->data));
-  Native * native = baton->native_obj;
+  fib_baton * baton = reinterpret_cast<fib_baton*>(req->data);
   Handle<Value> argv[2];
   if (false == baton->error.empty())
     {
@@ -184,12 +178,14 @@ void Native::UV_FibAfter(uv_work_t * req)
 
   // cleanup
   baton->callback.Reset();
-  //callback->Dispose()
+  Native * native = baton->native_obj;
   native->Unref();
-
+  baton->native_obj = nullptr;
+  delete baton;
+  
   if (try_catch.HasCaught())
-    {
+  {
       node::FatalException(try_catch);
-    }
+  }
 }
 
