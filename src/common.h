@@ -1,11 +1,9 @@
 #ifndef __NATIVE_EXAMPLE_COMMON__
 #define __NATIVE_EXAMPLE_COMMON__
 
-#include <v8.h>
+#include <node.h>
 #include <string>
-
-namespace mcreutz{
-namespace examples{
+#include <uv.h>
 
   class Native;
 
@@ -18,5 +16,4 @@ namespace examples{
     Native * native_obj;
   };
 
-}}
 #endif

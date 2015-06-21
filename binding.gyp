@@ -8,7 +8,7 @@
             ],
 	    'conditions': [
                 ['OS=="linux"', {
-                    'cflags_cc': [ '-std=c++0x' ]
+                    'cflags_cc': [ '-std=c++11' ]
                 }]
 	    ]
 	}           

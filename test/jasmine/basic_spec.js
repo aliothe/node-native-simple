@@ -15,12 +15,12 @@ describe("node native basic",
                 {
                     var start = 0,
                     end = 80,
-                    node_native = require(module_path).create();
+	            node_native = require(module_path).create();
                     expect(node_native).not.toBeNull();
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
                                   {
-                                      expect(err).toBeUndefined();
+                                      expect(err).toBeNull();
                                       results.sort(function(a,b){return a-b});
                                       expect(_.isEqual(expected_result, _.take(results, expected_result.length))).toBe(true);
                                       console.log(JSON.stringify(results));
@@ -44,12 +44,12 @@ describe("node native basic",
 
 	     function assert_overflow_error(err)
 	     {
-		 expect(err).not.toBeNull();
-		 if(null !== err)
-		 {
-		     expect(err instanceof Error).toBeTruthy();
-		     expect(err.message).toBe('overflow, result does not fit in double');
-		 }
+	     	 expect(err).not.toBeNull();
+	     	 if(null !== err)
+	     	 {
+	     	     expect(err instanceof Error).toBeTruthy();
+	     	     expect(err.message).toBe('overflow, result does not fit in double');
+	     	 }
 	     }
 
              it("fib async overflow", 
@@ -62,7 +62,7 @@ describe("node native basic",
                     async.map(_.range(start,end), node_native.fib, 
                               function(err, results)
                                   {		
-				      assert_overflow_error(err);
+	     			      assert_overflow_error(err);
                                       done();
                                   });
                 });          
@@ -75,12 +75,12 @@ describe("node native basic",
                     node_native = require(module_path).create(),
                     results = [];
                     expect(node_native).not.toBeNull();
-		    expect(function(){results = _.map(_.range(start,end), node_native.fibsync);}).toThrow('overflow, result does not fit in double');
-		    try{
-			results = _.map(_.range(start,end), node_native.fibsync);
-		    }catch(err){
-			assert_overflow_error(err);
-		    }
+	     	    expect(function(){results = _.map(_.range(start,end), node_native.fibsync);}).toThrow('overflow, result does not fit in double');
+	     	    try{
+	     		results = _.map(_.range(start,end), node_native.fibsync);
+	     	    }catch(err){
+	     		assert_overflow_error(err);
+	     	    }
                 });          
 
          });

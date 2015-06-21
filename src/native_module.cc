@@ -1,20 +1,20 @@
 #include <node.h>
-#include <v8.h>
 #include "native.h"
 
 using namespace v8;
 
-Handle<Value> Create(const Arguments& args) 
-{
-  HandleScope scope;
-  return scope.Close(mcreutz::examples::Native::NewInstance(args));
+void CreateObject(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  Native::NewInstance(args);
 }
 
-void Init(Handle<Object> target) 
-{
-  mcreutz::examples::Native::Init();
-  target->Set(String::NewSymbol("create"),
-	      FunctionTemplate::New(Create)->GetFunction());
+void InitAll(Handle<Object> exports, Handle<Object> module) {
+  Native::Init();
+  NODE_SET_METHOD(module, "exports", CreateObject);
 }
 
-NODE_MODULE(native_module, Init)
+NODE_MODULE(addon, InitAll)
+
+
+

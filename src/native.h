@@ -3,34 +3,32 @@
 
 #include <functional>
 #include <node.h>
-#include <v8.h>
+#include <node_object_wrap.h>
+#include <uv.h>
 
-namespace mcreutz{
-namespace examples{
-          class Native : public node::ObjectWrap {
-          public:
-            static void Init();
-            static v8::Handle<v8::Value> NewInstance(const v8::Arguments& args);
+class Native : public node::ObjectWrap {
+ public:
+  static void Init();
+  static void NewInstance(const v8::FunctionCallbackInfo<v8::Value>& args);
   
-          private:
-            Native();
-            ~Native();
+ private:
+  Native();
+  ~Native();
 
-            static v8::Persistent<v8::Function> constructor;
-            static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  static v8::Persistent<v8::Function> constructor;
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  
+  // async
+  static void Fib(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void UV_Fib(uv_work_t * req);
+  static void UV_FibAfter(uv_work_t * req);
 
-	    // async
-	    static v8::Handle<v8::Value> Fib(const v8::Arguments& args);
-            static void UV_Fib(uv_work_t * req);
-            static void UV_FibAfter(uv_work_t * req);
+  // sync
+  static void FibSync(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-            // sync
-            static v8::Handle<v8::Value> FibSync(const v8::Arguments& args);
-
-	  private:
-	    double  FibImpl(double  n);
-	  private:
-	    std::function<double (double)> f;
-          };
-}}
+ private:
+  double  FibImpl(double  n);
+ private:
+  std::function<double (double)> f;
+};
 #endif

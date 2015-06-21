@@ -5,8 +5,6 @@
 #include <mutex>
 #include <memory>
 
-namespace mcreutz{
-namespace examples{
 
 template <typename ReturnType, typename... Args>
 std::function<ReturnType (Args...)> memoize(std::function<ReturnType (Args...)> f) {
@@ -23,7 +21,5 @@ std::function<ReturnType (Args...)> memoize(std::function<ReturnType (Args...)> 
 	    return cache[t];
 	  });
 }
-
-}}
 
 #endif

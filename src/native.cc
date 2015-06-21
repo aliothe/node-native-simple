@@ -3,16 +3,12 @@
 #include <cstddef>
 #include <memory>
 #include <limits>
-#include <v8.h>
 #include <node.h>
 #include "utils.h"
 #include "common.h"
 #include "native.h"
 
 using namespace v8;
-
-namespace mcreutz{
-namespace examples{
 
 const char * const K_DOUBLE_OVERFLOW_ERROR = "overflow, result does not fit in double";
 Persistent<Function> Native::constructor;
@@ -23,16 +19,18 @@ Native::~Native() {};
 
 void Native::Init() 
 {
+  Isolate* isolate = Isolate::GetCurrent();
+
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Native"));
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, New);
+  tpl->SetClassName(String::NewFromUtf8(isolate, "Native"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("fibsync"),
-                                FunctionTemplate::New(FibSync)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("fib"),
-                                FunctionTemplate::New(Fib)->GetFunction());
-  constructor = Persistent<Function>::New(tpl->GetFunction());
+  NODE_SET_PROTOTYPE_METHOD(tpl, "fibsync", FibSync);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "fib", Fib);
+
+  constructor.Reset(isolate, tpl->GetFunction());
 }
 
 double Native::FibImpl(double n)
@@ -41,42 +39,56 @@ double Native::FibImpl(double n)
   return f(n-1) + f(n-2);
 }
       
-Handle<Value> Native::New(const Arguments& args) 
+void Native::New(const v8::FunctionCallbackInfo<v8::Value>& args) 
 {
-  HandleScope scope;
-  Native * instance = new Native();
-  instance->Wrap(args.This());
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
 
-  std::function<double(double)> wrapped_fibimpl = 
-  [=](double n) 
+  if (args.IsConstructCall())
   {
-    return instance->FibImpl(n);
-  };
-  instance->f = memoize(wrapped_fibimpl);
-  return args.This();
+    Native * instance = new Native();
+    instance->Wrap(args.This());
+    std::function<double(double)> wrapped_fibimpl = 
+      [=](double n) 
+      {
+	return instance->FibImpl(n);
+      };
+    instance->f = memoize(wrapped_fibimpl);  
+    args.GetReturnValue().Set(args.This());
+  }
+  else
+  {
+    // Invoked as plain function `Native(...)`, turn into construct call.
+    NewInstance(args);
+  }
 }
 
-Handle<Value> Native::NewInstance(const v8::Arguments& args) 
+void Native::NewInstance(const FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope scope;
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
   const unsigned argc = 1;
   Handle<Value> argv[argc] = { args[0] };
-  Local<Object> instance = constructor->NewInstance(argc, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(argc, argv);
+
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Native::FibSync(const v8::Arguments& args)
+void Native::FibSync(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope scope;
+  Isolate* isolate = Isolate::GetCurrent();
+  v8::EscapableHandleScope scope(isolate);
   if (args.Length() < 1)
     {
-      ThrowException(Exception::Error(String::New("wrong number of arguments - need a number")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate,"wrong number of arguments - need a number")));
+      return;
     }
   if (!args[0]->IsInt32())
     {
-      ThrowException(Exception::TypeError(String::New("expecting an integer")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,"expecting an integer")));
+      return;
     }
 
   Local<Number> number = Local<Number>::Cast(args[0]);
@@ -84,43 +96,45 @@ Handle<Value> Native::FibSync(const v8::Arguments& args)
   const double result = native->f(number->Value());
   if(result > std::numeric_limits<double>::max())
     {
-      ThrowException(Exception::Error(String::New(K_DOUBLE_OVERFLOW_ERROR)));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate,K_DOUBLE_OVERFLOW_ERROR)));
+      return;
     }
-  return scope.Close(Number::New((native->f(number->Value()))));
+  args.GetReturnValue().Set(Number::New(isolate,(native->f(number->Value()))));
 }
 
-Handle<Value> Native::Fib(const v8::Arguments& args)
+void Native::Fib(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  HandleScope scope;
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() != 2)
     {
-      ThrowException(Exception::Error(String::New("wrong number of arguments - need a number and a function(err, result)")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate,"wrong number of arguments - need a number and a function(err, result)")));
+      return;
     }
   if (!args[0]->IsUint32())
     {
-      ThrowException(Exception::TypeError(String::New("expecting an integer")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,"expecting an integer")));
+      return;
     }
   if (!args[1]->IsFunction())
     {
-      ThrowException(Exception::TypeError(String::New("second argument should be a function(err, result)")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,"second argument should be a function(err, result)")));
+      return;
     }
     
   Native * native = ObjectWrap::Unwrap<Native>(args.This());
   std::unique_ptr<fib_baton> baton(new fib_baton());
   if (0 == baton.get())
     {
-      ThrowException(Exception::TypeError(String::New("memory allocation error in Native::Fib")));
-      return scope.Close(Undefined());
+      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate,"memory allocation error in Native::Fib")));
+      return;
     }
   
   Local<Number> number = Local<Number>::Cast(args[0]);
   Local<Function> callback = Local<Function>::Cast(args[1]);
-  
-  baton->callback = Persistent<Function>::New(callback);
+
+  Persistent<Function> fn(isolate, callback);
+  baton->callback.Reset(isolate, fn);
   baton->number = number->Value();
   baton->answer = 0;
   baton->native_obj = native;
@@ -130,7 +144,6 @@ Handle<Value> Native::Fib(const v8::Arguments& args)
 
   uv_queue_work(uv_default_loop(), &(baton_ptr->req), Native::UV_Fib, (uv_after_work_cb)Native::UV_FibAfter); 
   native->Ref();
-  return scope.Close(Undefined());
 }
 
 // uv stuff
@@ -149,25 +162,29 @@ void Native::UV_Fib(uv_work_t * req)
 // back on main thread - feel free to use v8 stuff
 void Native::UV_FibAfter(uv_work_t * req)
 {
-  HandleScope scope;
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
   std::unique_ptr<fib_baton> baton(reinterpret_cast<fib_baton*>(req->data));
   Native * native = baton->native_obj;
   Handle<Value> argv[2];
   if (false == baton->error.empty())
     {
-      argv[0] = Exception::Error(String::New(baton->error.c_str()));
-      argv[1] = Null();
+      argv[0] = Exception::Error(String::NewFromUtf8(isolate,baton->error.c_str()));
+      argv[1] = Null(isolate);
     }
   else
     {
-      argv[0] = Null();
-      argv[1] = Number::New(baton->answer);
+      argv[0] = Null(isolate);
+      argv[1] = Number::New(isolate,baton->answer);
     }
-  TryCatch try_catch; 
-  baton->callback->Call(Context::GetCurrent()->Global(), 2, argv);
+  TryCatch try_catch;
+  Local<Function> callback = Local<Function>::New(isolate,baton->callback);
+  callback->Call(isolate->GetCurrentContext()->Global(), 2, argv);
 
   // cleanup
-  baton->callback.Dispose();
+  baton->callback.Reset();
+  //callback->Dispose()
   native->Unref();
 
   if (try_catch.HasCaught())
@@ -176,4 +193,3 @@ void Native::UV_FibAfter(uv_work_t * req)
     }
 }
 
-}}
