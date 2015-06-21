@@ -7,6 +7,7 @@ Prerequisites
 =============
 * node js - https://github.com/joyent/node http://nodejs.org
 * c++ compiler that groks c++11 - see below for windows and linux
+* Note: This branch is for node v0.12.x - see master branch for node v0.10.x.
 
 Building
 ========
