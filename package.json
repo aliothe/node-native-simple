@@ -20,7 +20,7 @@
     },
     "main": "./index",
     "copyright": "MIT",
-    "engine": "node 0.12.x",
+    "engine": "node 0.12.6+",
     "gypfile": true
 }
 
