@@ -32,6 +32,11 @@ You also need to have python and make installed as well as jasmine-node installe
 $ npm install 
 ```
 
+For clang, on linux, you may want to try something like
+``` bash
+$ GYP_DEFINES=clang=1 CC=clang CXX=clang++ npm install
+```
+
 ``` bash
 $ npm test 
 ```
