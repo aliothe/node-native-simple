@@ -9,8 +9,7 @@
     },
     "dependencies": {
 	"bindings": "~1.2.1",
-	"node-gyp": "~1.0.2",
-	"pangyp": "~2.2.0",
+	"node-gyp": "3.2.1",
         "underscore": "x",
         "jasmine-node": "x",
 	"async": "x"
@@ -20,7 +19,7 @@
     },
     "main": "./index",
     "copyright": "MIT",
-    "engine": "node 0.12.6+",
+    "engine": "node 4.2.3",
     "gypfile": true
 }
 
